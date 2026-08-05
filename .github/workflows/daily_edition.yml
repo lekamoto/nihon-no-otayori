@@ -2,8 +2,8 @@ name: Gerar Edicao Diaria da Revista Japonesa
 
 on:
   schedule:
-    # Executa todos os dias às 10:00 UTC (07:00 da manhã no horário de Brasília)
-    - cron: '0 10 * * *'
+    # Executa todos os dias às 21:00 UTC (18:00 no horário de Brasília)
+    - cron: '0 21 * * *'
   workflow_dispatch: # Permite disparar manualmente pelo botão no GitHub se desejar
 
 jobs:
