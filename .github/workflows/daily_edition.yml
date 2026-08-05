@@ -45,10 +45,8 @@ jobs:
           password: ${{ secrets.MAIL_PASSWORD }}
           subject: Carta do Japão
           to: lekamoto@gmail.com
-          from: ${{ secrets.MAIL_USERNAME }}
-          body: |
-            Olá!
-            
-            Segue em anexo e no corpo a edição de hoje da Carta do Japão.
+          from: Carta do Japao <${{ secrets.MAIL_USERNAME }}>
+          html_body: file://edicoes/*.md
+          convert_markdown: true
           attachments: edicoes/*.md
 
