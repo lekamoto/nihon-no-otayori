@@ -29,3 +29,21 @@ jobs:
           git add edicoes/
           git commit -m "Auto-generate: Edicao Diaria $(date +'%Y-%m-%d')" || exit 0
           git push
+
+      - name: Enviar Carta por E-mail
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: Carta do Japão
+          to: lekamoto@gmail.com
+          from: ${{ secrets.MAIL_USERNAME }}
+          body: |
+            Olá!
+            
+            Segue em anexo e no corpo a edição de hoje da Carta do Japão.
+          attachments: edicoes/*.md
+
