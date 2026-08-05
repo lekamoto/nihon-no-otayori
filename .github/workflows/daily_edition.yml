@@ -9,11 +9,16 @@ on:
 jobs:
   build-and-commit:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+      ACTIONS_NODE20_ALLOW_UNSECURE: true
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -29,8 +34,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add edicoes/
-          git commit -m "Auto-generate: Edicao Diaria $(date +'%Y-%m-%d')" || exit 0
-          git push
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-generate: Edicao Diaria $(date +'%Y-%m-%d')" && git push)
 
       - name: Enviar Carta por E-mail
         uses: dawidd6/action-send-mail@v4
