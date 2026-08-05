@@ -65,6 +65,87 @@ if not g1_news:
 md_filename = f"edicoes/edicao_{now_br.strftime('%Y_%m_%d')}.md"
 os.makedirs("edicoes", exist_ok=True)
 
+# Gerar arquivo HTML responsivo (Story/Mobile) otimizado para leitura visual em celulares
+html_filename = f"edicoes/edicao_{now_br.strftime('%Y_%m_%d')}.html"
+
+html_content = f"""<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日本からのお便り - {date_str_jp}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@600;700;900&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap');
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{ background-color: #121212; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Noto Serif JP', serif; padding: 15px 0; }}
+    .story-card {{ width: 100%; max-width: 500px; background: #FFFDF9; color: #111111; padding: 28px 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 24px; line-height: 2.1; }}
+    .header {{ border-bottom: 4px solid #8B0000; padding-bottom: 16px; text-align: center; }}
+    .main-title {{ font-size: 30px; font-weight: 900; color: #8B0000; letter-spacing: 2px; margin-bottom: 6px; }}
+    .date-badge {{ font-size: 18px; font-weight: 700; color: #555555; margin-bottom: 14px; }}
+    .greeting-box {{ background-color: #F7EBE8; border-left: 6px solid #8B0000; padding: 16px; border-radius: 8px; font-size: 22px; font-weight: 700; text-align: left; }}
+    ruby {{ ruby-position: over; }}
+    rt {{ font-size: 13px; color: #D32F2F; font-weight: 700; font-family: 'Zen Kaku Gothic New', sans-serif; }}
+    .section-title {{ font-size: 24px; font-weight: 900; background-color: #111111; color: #FFFFFF; padding: 8px 16px; border-radius: 8px; margin-bottom: 16px; }}
+    .news-block {{ display: flex; flex-direction: column; gap: 18px; }}
+    .news-item {{ background-color: #FFFFFF; border: 2px solid #E0DCD3; border-radius: 12px; padding: 16px; }}
+    .news-title {{ font-size: 21px; font-weight: 900; color: #111111; margin-bottom: 8px; line-height: 1.5; }}
+    .news-body {{ font-size: 19px; font-weight: 600; color: #222222; text-align: justify; }}
+    .vocab-card {{ background-color: #F0F7F4; border: 3px solid #2E7D32; border-radius: 12px; padding: 16px; margin-bottom: 12px; }}
+    .vocab-term {{ font-size: 22px; font-weight: 900; color: #1B5E20; margin-bottom: 6px; border-bottom: 2px dashed #A5D6A7; padding-bottom: 4px; }}
+    .vocab-meaning {{ font-size: 19px; font-weight: 700; color: #111111; }}
+    .closing-box {{ background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); border: 3px solid #E65100; border-radius: 14px; padding: 20px; text-align: center; font-size: 22px; font-weight: 900; color: #BF360C; line-height: 2.1; }}
+  </style>
+</head>
+<body>
+  <div class="story-card">
+    <header class="header">
+      <h1 class="main-title">日本からのお便り</h1>
+      <div class="date-badge">{date_str_jp} ({date_str_br})</div>
+      <div class="greeting-box">
+        お<ruby>母<rt>かあ</rt></ruby>さん、{greeting}。<br>
+        今日も<ruby>日本<rt>にほん</rt></ruby>からのお<ruby>便<rt>たよ</rt></ruby>りをお<ruby>届<rt>とど</rt></ruby>けします。<br>
+        ゆっくり読んでくださいね。
+      </div>
+    </header>
+
+    <section>
+      <div class="section-title">🌸 日本のニュース</div>
+      <div class="news-block">
+        <div class="news-item"><div class="news-title">1. {nhk_news[0]['title']}</div><div class="news-body">{nhk_news[0]['description']}</div></div>
+        <div class="news-item"><div class="news-title">2. {nhk_news[1]['title'] if len(nhk_news) > 1 else '日本の文化情報'}</div><div class="news-body">{nhk_news[1]['description'] if len(nhk_news) > 1 else '全国各地で歴史展が開催されています。'}</div></div>
+        <div class="news-item"><div class="news-title">3. {nhk_news[2]['title'] if len(nhk_news) > 2 else '健康と暮らし'}</div><div class="news-body">{nhk_news[2]['description'] if len(nhk_news) > 2 else '朝の習慣が健康を支えています。'}</div></div>
+        <div class="news-item"><div class="news-title">4. {nhk_news[3]['title'] if len(nhk_news) > 3 else '自然と環境'}</div><div class="news-body">{nhk_news[3]['description'] if len(nhk_news) > 3 else '美しい四季を大切にしています。'}</div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">🔰 ブラジルのニュース</div>
+      <div class="news-block">
+        <div class="news-item"><div class="news-title">1. {g1_news[0]['title']}</div><div class="news-body">{g1_news[0]['description']}</div></div>
+        <div class="news-item"><div class="news-title">2. {g1_news[1]['title'] if len(g1_news) > 1 else '環境と未来'}</div><div class="news-body">{g1_news[1]['description'] if len(g1_news) > 1 else '新しい取り組みが広がっています。'}</div></div>
+        <div class="news-item"><div class="news-title">3. {g1_news[2]['title'] if len(g1_news) > 2 else '経済と暮らし'}</div><div class="news-body">{g1_news[2]['description'] if len(g1_news) > 2 else '国際協力が進められています。'}</div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title" style="background-color: #2E7D32;">📖 言葉の解説</div>
+      <div class="vocab-card"><div class="vocab-term">1. キャンペーン (Kyampēn)</div><div class="vocab-meaning">【意味】目的を達成するために行う宣伝や活動。</div></div>
+      <div class="vocab-card"><div class="vocab-term">2. パートナーシップ (Pātonāshippu)</div><div class="vocab-meaning">【意味】協力関係、提携。</div></div>
+      <div class="vocab-card"><div class="vocab-term">3. ユネスコ世界遺産 (Yunesuko Sekai Isan)</div><div class="vocab-meaning">【意味】国際機関が指定する価値のある文化財や自然。</div></div>
+      <div class="vocab-card"><div class="vocab-term">4. 巡回 (じゅんかい)</div><div class="vocab-meaning">【意味】各地を順番にまわること。</div></div>
+    </section>
+
+    <footer class="closing-box">
+      今日も 素敵な 一日でしたね。<br>
+      明日も きっと 素敵な 一日に なります。<br>
+      どうぞ ゆっくり お休みください。<br>
+      よい夢を。🌟
+    </footer>
+  </div>
+</body>
+</html>
+"""
+
 md_content = f"""# 日本からのお便り (Diário do Japão e do Brasil)
 **Data:** {date_str_jp} ({date_str_br})  
 **Horário de Geração:** {now_br.strftime('%H:%M')} ({period})

@@ -48,5 +48,7 @@ jobs:
           from: Carta do Japao <${{ secrets.MAIL_USERNAME }}>
           html_body: file://edicoes/*.md
           convert_markdown: true
-          attachments: edicoes/*.md
+          attachments: |
+            edicoes/*.html
+            edicoes/*.md
 
