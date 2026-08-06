@@ -39,10 +39,10 @@ jobs:
       - name: Identificar Edição do Dia e Enviar E-mail
         shell: powershell
         run: |
-          $today_md = Get-ChildItem -Path "edicoes" -Filter "*.md" | Sort-LastWriteTime -Descending | Select-Object -First 1
-          $today_html = Get-ChildItem -Path "edicoes" -Filter "*.html" | Sort-LastWriteTime -Descending | Select-Object -First 1
-          echo "MD_PATH=$($today_md.FullName)" >> $env:GITHUB_ENV
-          echo "HTML_PATH=$($today_html.FullName)" >> $env:GITHUB_ENV
+          $today_md = Get-ChildItem -Path "edicoes" -Filter "*.md" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          $today_html = Get-ChildItem -Path "edicoes" -Filter "*.html" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          "MD_PATH=$($today_md.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "HTML_PATH=$($today_html.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Enviar Carta por E-mail
         uses: dawidd6/action-send-mail@v4
