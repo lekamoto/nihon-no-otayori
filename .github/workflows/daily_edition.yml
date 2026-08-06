@@ -28,10 +28,13 @@ jobs:
           python generate_daily.py
 
       - name: Commitar e Enviar Nova Edição Diária
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Auto-generate: Edicao Diaria"
-          file_pattern: "edicoes/*.md"
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add edicoes/
+          git status
+          git diff-index --quiet HEAD || git commit -m "Auto-generate: Edicao Diaria"
+          git push origin main
 
       - name: Enviar Carta por E-mail
         uses: dawidd6/action-send-mail@v4
