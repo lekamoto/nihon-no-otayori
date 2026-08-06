@@ -36,6 +36,14 @@ jobs:
           git status
           git status --porcelain | Out-String | ForEach-Object { if ($_ -ne "") { git commit -m "Auto-generate: Edicao Diaria"; git push origin main } }
 
+      - name: Identificar Edição do Dia e Enviar E-mail
+        shell: powershell
+        run: |
+          $today_md = Get-ChildItem -Path "edicoes" -Filter "*.md" | Sort-LastWriteTime -Descending | Select-Object -First 1
+          $today_html = Get-ChildItem -Path "edicoes" -Filter "*.html" | Sort-LastWriteTime -Descending | Select-Object -First 1
+          echo "MD_PATH=$($today_md.FullName)" >> $env:GITHUB_ENV
+          echo "HTML_PATH=$($today_html.FullName)" >> $env:GITHUB_ENV
+
       - name: Enviar Carta por E-mail
         uses: dawidd6/action-send-mail@v4
         with:
@@ -47,9 +55,7 @@ jobs:
           subject: Carta do Japão
           to: lekamoto@gmail.com
           from: Carta do Japao <${{ secrets.MAIL_USERNAME }}>
-          html_body: file://edicoes/*.md
+          html_body: file://${{ env.MD_PATH }}
           convert_markdown: true
-          attachments: |
-            edicoes/*.html
-            edicoes/*.md
+          attachments: ${{ env.HTML_PATH }},${{ env.MD_PATH }}
 
