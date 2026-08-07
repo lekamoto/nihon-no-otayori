@@ -105,8 +105,6 @@ g1_news_jp = [
 ]
 
 os.makedirs("edicoes", exist_ok=True)
-html_filename = f"edicoes/edicao_{now_br.strftime('%Y_%m_%d')}.html"
-png_filename = f"edicoes/edicao_{now_br.strftime('%Y_%m_%d')}.png"
 
 # AJUSTE 3: Fotos antes de cada notícia para tornar a leitura mais agradável
 jp_news_html = ""
@@ -233,16 +231,15 @@ html_content = f"""<!DOCTYPE html>
 </html>
 """
 
-with open(html_filename, "w", encoding="utf-8") as f:
+# Salvar o arquivo HTML específico da data (ex: edicoes/2026-08-07.html)
+date_html_filename = f"edicoes/{now_br.strftime('%Y-%m-%d')}.html"
+latest_html_filename = "edicoes/index.html"
+
+with open(date_html_filename, "w", encoding="utf-8") as f:
     f.write(html_content)
 
-# AJUSTE 2: Gerar a Imagem PNG final de Alta Qualidade (Coluna Única)
-try:
-    from html2image import Html2Image
-    hti = Html2Image(output_path="edicoes", custom_flags=['--no-sandbox', '--disable-gpu'])
-    hti.screenshot(html_str=html_content, save_as=os.path.basename(png_filename), size=(650, 3400))
-    print(f"Imagem PNG de alta qualidade gerada em: {png_filename}")
-except Exception as e:
-    print(f"Erro/Aviso na geração da imagem PNG: {e}")
+with open(latest_html_filename, "w", encoding="utf-8") as f:
+    f.write(html_content)
 
-print("Geração da edição concluída com sucesso.")
+print(f"Edição HTML diária gerada com sucesso em: {date_html_filename}")
+

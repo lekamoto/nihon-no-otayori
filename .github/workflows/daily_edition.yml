@@ -39,10 +39,10 @@ jobs:
       - name: Identificar Edição do Dia e Enviar E-mail
         shell: powershell
         run: |
-          $today_png = Get-ChildItem -Path "edicoes" -Filter "*.png" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          $today_html = Get-ChildItem -Path "edicoes" -Filter "*.html" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          "PNG_PATH=$($today_png.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $today_html = Get-ChildItem -Path "edicoes" -Filter "*.html" -Exclude "index.html" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          $date_name = $today_html.Name
           "HTML_PATH=$($today_html.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "PAGE_URL=https://lekamoto.github.io/nihon-no-otayori/edicoes/$date_name" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Enviar Carta por E-mail
         uses: dawidd6/action-send-mail@v4
@@ -52,9 +52,17 @@ jobs:
           secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: Carta do Japão
+          subject: Carta do Japão - Link Web da Edição
           to: lekamoto@gmail.com
           from: Carta do Japao <${{ secrets.MAIL_USERNAME }}>
-          html_body: file://${{ env.HTML_PATH }}
-          attachments: ${{ env.PNG_PATH }},${{ env.HTML_PATH }}
+          body: |
+            Olá!
+            
+            A edição de hoje da Carta do Japão já está disponível na Web com nitidez máxima!
+            
+            🔗 Link direto para leitura no celular/WhatsApp:
+            ${{ env.PAGE_URL }}
+            
+            (O arquivo HTML também está em anexo para backup).
+          attachments: ${{ env.HTML_PATH }}
 
