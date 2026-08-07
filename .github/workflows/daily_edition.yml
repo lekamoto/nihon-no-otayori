@@ -39,9 +39,9 @@ jobs:
       - name: Identificar Edição do Dia e Enviar E-mail
         shell: powershell
         run: |
-          $today_md = Get-ChildItem -Path "edicoes" -Filter "*.md" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          $today_png = Get-ChildItem -Path "edicoes" -Filter "*.png" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
           $today_html = Get-ChildItem -Path "edicoes" -Filter "*.html" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          "MD_PATH=$($today_md.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "PNG_PATH=$($today_png.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "HTML_PATH=$($today_html.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Enviar Carta por E-mail
@@ -55,7 +55,6 @@ jobs:
           subject: Carta do Japão
           to: lekamoto@gmail.com
           from: Carta do Japao <${{ secrets.MAIL_USERNAME }}>
-          html_body: file://${{ env.MD_PATH }}
-          convert_markdown: true
-          attachments: ${{ env.HTML_PATH }},${{ env.MD_PATH }}
+          html_body: file://${{ env.HTML_PATH }}
+          attachments: ${{ env.PNG_PATH }},${{ env.HTML_PATH }}
 

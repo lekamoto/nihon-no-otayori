@@ -59,7 +59,9 @@ Escolher automaticamente conforme o horário de geração:
 
 ### Bloco de Notícias do Brasil (3 Notícias)
 - **Fonte Preferencial:** Globo / G1.
+- **Idioma:** O resumo das notícias do Brasil DEVE ser escrito integralmente em japonês (com poucas linhas, sintético, sem muitos detalhes para não cansar a leitora).
 - **Temas:** Economia, ciência, cultura, infraestrutura, clima, meio ambiente, educação e saúde.
+- **Imagens:** Incluir uma imagem representativa/ilustrativa antes de cada texto de notícia para tornar a leitura agradável e evitar blocos de texto muito longos.
 
 ---
 
@@ -91,24 +93,25 @@ Encerrar a carta sempre de forma positiva, afetuosa e reconfortante.
 ## 8. Tradução para o Português
 
 - Após gerar a carta em japonês, produzir uma versão traduzida para o português para conferência pelo operador/família.
-- **Atenção:** Esta tradução **NÃO** deve ser exibida na imagem/layout final enviado à leitora.
+- **Atenção:** Esta tradução **NÃO** deve ser exibida na imagem final enviada à leitora.
 
 ---
 
-## 9. Definição Visual e Layout (Story 9:16)
+## 9. Definição Visual e Formato da Imagem (PNG em Coluna Única)
 
-- **Formato:** Story (9:16) vertical para smartphones.
-- **Layout:** APENAS UMA COLUNA. Organização vertical ocupando toda a largura útil da imagem.
-- **Sequência de Blocos:**
+- **Formato Final da Carta:** Imagem **PNG** de altíssima qualidade (HD/Mobile Story 9:16).
+- **Layout:** APENAS UMA COLUNA vertical, ocupando toda a largura útil da imagem.
+- **Imagens nas Notícias:** Inserir uma foto representativa antes do texto de cada notícia para tornar a leitura mais dinâmica e agradável.
+- **Sequência de Blocos na Imagem:**
   1. Cabeçalho (`「日本からのお便り」`, Data, Saudação)
-  2. Bloco de notícias do Japão (4 notícias)
-  3. Bloco de notícias do Brasil (3 notícias)
-  4. Compreendendo melhor as palavras
+  2. Bloco de notícias do Japão (4 notícias com fotos)
+  3. Bloco de notícias do Brasil (3 notícias resumidas em japonês com fotos)
+  4. Compreendendo melhor as palavras (3 a 5 explicações)
   5. Mensagem de incentivo
 
 - **Acessibilidade Visual (Foco em Glaucoma/Visão Unilateral):**
   - Fonte **EXTRA GRANDE**;
-  - **Alto contraste** (fundo claro, texto escuro);
+  - **Alto contraste** (fundo creme/claro, texto escuro e legível);
   - Amplo espaçamento entre linhas e entre blocos;
   - Poucas cores (paleta sóbria e harmoniosa);
   - Evitar blocos de texto densos/compactos;
@@ -119,7 +122,8 @@ Encerrar a carta sempre de forma positiva, afetuosa e reconfortante.
 ## 10. Fluxo de Trabalho (Ordem de Execução)
 
 1. Pesquisar notícias atuais e confiáveis (NHK e Globo).
-2. Produzir a carta completa em japonês com Furigana.
-3. Produzir a tradução da carta para o português (para conferência).
-4. Gerar/Renderizar a imagem no formato Story (9:16) em coluna única com fonte extra grande.
-5. Se houver dúvidas durante o processo, perguntar ao usuário.
+2. Traduzir e resumir em japonês simples as notícias do Brasil (poucas linhas).
+3. Produzir a carta completa em japonês com Furigana e imagens de apoio.
+4. Produzir a tradução da carta para o português (para conferência externa).
+5. Renderizar o arquivo final como imagem **PNG** de alta qualidade (coluna única, fonte extra grande).
+6. Se houver dúvidas durante o processo, perguntar ao usuário.
