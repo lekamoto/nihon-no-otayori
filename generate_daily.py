@@ -1,5 +1,6 @@
 import os
 import json
+import html
 import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
@@ -26,23 +27,28 @@ else:
 def fetch_rss(url, max_items=4):
     items = []
     try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req) as response:
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+        with urllib.request.urlopen(req, timeout=15) as response:
             xml_data = response.read()
             root = ET.fromstring(xml_data)
             channel = root.find('channel')
             if channel is not None:
                 for item in channel.findall('item')[:max_items]:
-                    title = item.find('title').text if item.find('title') is not None else ""
-                    link = item.find('link').text if item.find('link') is not None else ""
-                    description = item.find('description').text if item.find('description') is not None else ""
+                    raw_title = item.find('title').text if item.find('title') is not None else ""
+                    raw_link = item.find('link').text if item.find('link') is not None else ""
+                    raw_desc = item.find('description').text if item.find('description') is not None else ""
                     
+                    # Sanitização contra XSS / HTML Injection
+                    title = html.escape(raw_title.strip())
+                    link = html.escape(raw_link.strip())
+                    description = html.escape(raw_desc.strip())
+
                     image_url = ""
                     media = item.find('{http://search.yahoo.com/mrss/}content')
                     if media is not None and 'url' in media.attrib:
-                        image_url = media.attrib['url']
+                        image_url = html.escape(media.attrib['url'].strip())
                     elif item.find('enclosure') is not None and 'url' in item.find('enclosure').attrib:
-                        image_url = item.find('enclosure').attrib['url']
+                        image_url = html.escape(item.find('enclosure').attrib['url'].strip())
 
                     items.append({'title': title, 'link': link, 'description': description, 'image': image_url})
     except Exception as e:
