@@ -59,6 +59,9 @@ Escolher automaticamente conforme o horário da geração:
 - **Estilo Resumido e Sintético (Evitar Textos Longos):**
   - ✂️ **REGRA DE CONCISÃO:** Todas as notícias (tanto do Japão quanto do Brasil) DEVEM ser apresentadas de forma **resumida e direta em poucas linhas (no máximo 2 a 3 frases por notícia)**.
   - 👁️ **MOTIVO:** Evitar blocos de texto extensos ou cansativos que dificultem a leitura ou causem fadiga visual na idosa (que possui glaucoma e lê em celular).
+- **Proibição de Conteúdo Fixo / Hard-Coded:**
+  - ❌ **PROIBIDO:** Utilizar modelos pré-definidos de notícias, textos fixos ou notícias "hard-coded".
+  - ⬜ **COMPORTAMENTO SEM NOTÍCIAS NO DIA:** Caso não sejam encontradas notícias reais publicadas na data exata de execução, o bloco correspondente (do Japão ou do Brasil) **DEVE SER DEIXADO EM BRANCO** tanto na versão em japonês quanto na em português.
 - **Fotos Inéditas:** Insira uma **foto nova e distinta antes do texto de cada notícia** (tanto do Japão quanto do Brasil). Nunca repetir fotos utilizadas em dias anteriores para manter a experiência visual agradável e renovada.
 
 ### Bloco de Notícias do Japão (4 Notícias)

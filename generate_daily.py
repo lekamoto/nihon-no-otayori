@@ -112,12 +112,6 @@ if g1_news:
             'description_pt': item['description'],
             'image': img_url
         })
-else:
-    g1_news_jp = [
-        {"title": "アマゾンの 歴史的 劇場が ユネスコ世界遺産に 登録", "description": "ベレンとマナウスの美しい劇場が世界遺産に選ばれました。", "title_pt": "Teatros da Amazônia são patrimônio da UNESCO", "description_pt": "Teatros históricos de Belém e Manaus viram patrimônio.", "image": default_images_br[0]},
-        {"title": "サンパウロで 気候会議が 開催", "description": "森を守るための取り組みが話し合われました。", "title_pt": "Conferência do Clima em São Paulo", "description_pt": "Discussions em SP sobre proteção da floresta.", "image": default_images_br[1]},
-        {"title": "ブラジルの 経済パートナーシップが 拡大", "description": "新しい貿易や技術の交流が深まっています。", "title_pt": "Parcerias econômicas do Brasil se expandem", "description_pt": "Aumento do comércio e cooperação tecnológica.", "image": default_images_br[2]}
-    ]
 
 os.makedirs("edicoes", exist_ok=True)
 
