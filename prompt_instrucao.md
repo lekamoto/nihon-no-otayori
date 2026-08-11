@@ -101,10 +101,10 @@ A geração da edição diária deve produzir **dois arquivos HTML separados**, 
    - *(Também mantida uma cópia `index.html` apontando para a edição `JP` mais recente).*
 
 2. **Carta Traduzida para o Português (para conferência do operador/família):**
-   - **Formato:** Arquivo `HTML` responsivo.
-   - **Idioma:** Integralmente em Português (títulos, notícias, explicações de vocabulário e despedida).
+   - **Formato:** Arquivo `HTML` responsivo (`YYYY-MM-DD_PT.html`).
+   - **Idioma:** 100% no idioma Português em TODAS as partes (título, saudações, as 4 notícias do Japão traduzidas para português, as 3 notícias do Brasil traduzidas para português, a explicação do vocabulário em português e a mensagem final).
    - **Padrão de Nome:** `YYYY-MM-DD_PT.html` (ex: `2026-08-11_PT.html`).
-   - **Atenção:** Esta versão em português destina-se à conferência rápida e nítida do operador/família e **NÃO** é exibida na página principal de leitura da idosa.
+   - **Atenção:** Esta versão destina-se à conferência completa e rápida pelo operador/família.
 
 ---
 
