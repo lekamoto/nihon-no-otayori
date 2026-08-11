@@ -18,10 +18,12 @@ jobs:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
 
-      - name: Configurar Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
+      - name: Limpar Cache e Arquivos Temporários
+        shell: powershell
+        run: |
+          Write-Host "Limpando cache de chamadas Python e diretórios temporários..."
+          Get-ChildItem -Path . -Include "*.pyc", "__pycache__" -Recurse -Force | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+          git clean -xfd -e edicoes/
 
       - name: Executar Gerador Diário
         run: |
