@@ -231,71 +231,140 @@ html_content = f"""<!DOCTYPE html>
 </html>
 """
 
-# Gerar o arquivo de tradução em Português para conferência (ex: edicoes/2026-08-11_PT.md)
-pt_md_filename = f"edicoes/{now_br.strftime('%Y-%m-%d')}_PT.md"
-pt_md_content = f"""# Carta do Japão (Edição de Conferência em Português)
-**Data:** {date_str_br} ({date_str_jp})  
-**Horário:** {now_br.strftime('%H:%M')} ({period})
+# Montagem dos blocos de notícias em Português para o arquivo HTML de conferência
+jp_news_pt_html = ""
+for idx, item in enumerate(nhk_news[:4], 1):
+    jp_news_pt_html += f"""
+    <div class="news-item">
+      <img src="{item['image']}" class="news-img" alt="Notícia {idx}">
+      <div class="news-title">{idx}. {item['title']}</div>
+      <div class="news-body">{item['description']}</div>
+    </div>
+    """
 
----
-
-## 1. Carta em Japonês (Tradução)
-
-Querida mãe,  
-{greeting} (Boa {period.lower()}).  
-Hoje também lhe entrego esta carta do Japão.  
-Por favor, leia com calma.  
-
----
-
-### 【Notícias do Japão】
-
-1. **{nhk_news[0]['title']}**  
-   {nhk_news[0]['description']}
-
-2. **{nhk_news[1]['title'] if len(nhk_news) > 1 else 'Informações Culturais do Japão'}**  
-   {nhk_news[1]['description'] if len(nhk_news) > 1 else 'Exposições de história e arte estão sendo realizadas em várias partes do país.'}
-
-3. **{nhk_news[2]['title'] if len(nhk_news) > 2 else 'Saúde e Estilo de Vida'}**  
-   {nhk_news[2]['description'] if len(nhk_news) > 2 else 'O hábito da manhã ajuda a manter a saúde das pessoas.'}
-
-4. **{nhk_news[3]['title'] if len(nhk_news) > 3 else 'Natureza e Meio Ambiente'}**  
-   {nhk_news[3]['description'] if len(nhk_news) > 3 else 'Iniciativas para valorizar as belas quatro estações continuam.'}
-
----
-
-### 【Notícias do Brasil (Resumo em Português)】
-
-1. **{g1_news_jp[0]['title']}**  
-   {g1_news_jp[0]['description']}
-
-2. **{g1_news_jp[1]['title']}**  
-   {g1_news_jp[1]['description']}
-
-3. **{g1_news_jp[2]['title']}**  
-   {g1_news_jp[2]['description']}
-
----
-
-### 【Compreendendo Melhor as Palavras】
-
-1. **Campanha (Kyampēn):** Atividade publicitária realizada para atingir um objetivo.
-2. **Parceria (Pātonāshippu):** Relação de cooperação ou aliança mútua.
-3. **Patrimônio Mundial da UNESCO (Yunesuko Sekai Isan):** Bens culturais ou naturais protegidos como tesouros da humanidade.
-4. **Junkai (Circulação):** Visitar vários locais em sequência.
-
----
-
-### 【Mensagem de Incentivo do Dia】
-
-Hoje também foi um dia maravilhoso.  
-Amanhã certamente será outro dia maravilhoso.  
-Por favor, descanse bem.  
-Tenha bons sonhos. 🌟
+br_news_pt_html = """
+    <div class="news-item">
+      <img src="https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?w=600&q=80" class="news-img" alt="Brasil 1">
+      <div class="news-title">1. Teatros Históricos da Amazônia são Registrados como Patrimônio Mundial da UNESCO</div>
+      <div class="news-body">O Teatro da Paz em Belém e o Teatro Amazonas em Manaus foram escolhidos como patrimônios mundiais da UNESCO. É uma arquitetura histórica deslumbrante de que o Brasil se orgulha.</div>
+    </div>
+    <div class="news-item">
+      <img src="https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=600&q=80" class="news-img" alt="Brasil 2">
+      <div class="news-title">2. Conferência "Semana do Clima 2026" é Realizada em São Paulo</div>
+      <div class="news-body">Novas iniciativas para proteger a natureza e as florestas foram debatidas em São Paulo, representando um passo importante para o futuro sustentável.</div>
+    </div>
+    <div class="news-item">
+      <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=600&q=80" class="news-img" alt="Brasil 3">
+      <div class="news-title">3. Expansão da Parceria Econômica entre Brasil e Índia</div>
+      <div class="news-body">Representantes do governo brasileiro visitaram a Índia para fortalecer o comércio e o intercâmbio tecnológico entre as duas nações.</div>
+    </div>
 """
 
-with open(pt_md_filename, "w", encoding="utf-8") as f:
-    f.write(pt_md_content)
+pt_html_content = f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carta do Japão (Tradução em Português) - {date_str_br}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500;700;900&display=swap');
+    * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+    body {{
+      background-color: #121212;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Roboto', sans-serif;
+      padding: 0;
+      margin: 0;
+    }}
+    .story-card {{
+      width: 650px;
+      background: #FFFDF9;
+      color: #111111;
+      padding: 36px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      line-height: 2.1;
+    }}
+    .header {{ border-bottom: 5px solid #8B0000; padding-bottom: 20px; text-align: center; }}
+    .main-title {{ font-size: 36px; font-weight: 900; color: #8B0000; letter-spacing: 1px; margin-bottom: 10px; }}
+    .date-badge {{ font-size: 22px; font-weight: 700; color: #444444; margin-bottom: 18px; }}
+    .greeting-box {{ background-color: #F7EBE8; border-left: 8px solid #8B0000; padding: 20px; border-radius: 10px; font-size: 24px; font-weight: 700; text-align: left; }}
+    .section-title {{ font-size: 26px; font-weight: 900; background-color: #111111; color: #FFFFFF; padding: 12px 20px; border-radius: 10px; margin-bottom: 20px; }}
+    .news-block {{ display: flex; flex-direction: column; gap: 28px; }}
+    .news-item {{ background-color: #FFFFFF; border: 3px solid #E0DCD3; border-radius: 16px; padding: 22px; overflow: hidden; }}
+    .news-img {{ width: 100%; height: 260px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; border: 1px solid #CCC; }}
+    .news-title {{ font-size: 24px; font-weight: 900; color: #111111; margin-bottom: 12px; line-height: 1.5; }}
+    .news-body {{ font-size: 22px; font-weight: 500; color: #222222; text-align: justify; }}
+    .vocab-card {{ background-color: #F0F7F4; border: 3px solid #2E7D32; border-radius: 16px; padding: 20px; margin-bottom: 16px; }}
+    .vocab-term {{ font-size: 25px; font-weight: 900; color: #1B5E20; margin-bottom: 8px; border-bottom: 2px dashed #A5D6A7; padding-bottom: 6px; }}
+    .vocab-meaning {{ font-size: 22px; font-weight: 700; color: #111111; }}
+    .closing-box {{ background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); border: 4px solid #E65100; border-radius: 18px; padding: 28px; text-align: center; font-size: 26px; font-weight: 900; color: #BF360C; line-height: 2.2; }}
+  </style>
+</head>
+<body>
+  <div class="story-card">
+    <header class="header">
+      <h1 class="main-title">Carta do Japão (Versão em Português)</h1>
+      <div class="date-badge">{date_str_br} ({date_str_jp})</div>
+      <div class="greeting-box">
+        Querida mãe, boa {period.lower()}.<br>
+        Hoje também lhe entregamos esta carta com carinho vinda do Japão.<br>
+        Por favor, leia com calma.
+      </div>
+    </header>
+
+    <section>
+      <div class="section-title">🌸 Notícias do Japão</div>
+      <div class="news-block">
+        {jp_news_pt_html}
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">🔰 Notícias do Brasil</div>
+      <div class="news-block">
+        {br_news_pt_html}
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title" style="background-color: #2E7D32;">📖 Compreendendo Melhor as Palavras</div>
+      <div class="vocab-card">
+        <div class="vocab-term">1. Campanha (Kyampēn)</div>
+        <div class="vocab-meaning">【Significado】Atividade de divulgação ou promoção realizada para atingir um objetivo.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-term">2. Parceria (Pātonāshippu)</div>
+        <div class="vocab-meaning">【Significado】Relação de cooperação mútua ou aliança.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-term">3. Patrimônio Mundial da UNESCO (Yunesuko Sekai Isan)</div>
+        <div class="vocab-meaning">【Significado】Bens culturais ou naturais protegidos como tesouros da humanidade.</div>
+      </div>
+      <div class="vocab-card">
+        <div class="vocab-term">4. Circulação / Turnê (Junkai)</div>
+        <div class="vocab-meaning">【Significado】Ato de percorrer vários locais em sequência.</div>
+      </div>
+    </section>
+
+    <footer class="closing-box">
+      Hoje também foi um dia maravilhoso.<br>
+      Amanhã certamente será outro dia maravilhoso.<br>
+      Por favor, descanse bem.<br>
+      Tenha bons sonhos. 🌟
+    </footer>
+  </div>
+</body>
+</html>
+"""
+
+# Salvar o arquivo de tradução em Português no formato HTML (ex: edicoes/2026-08-11_PT.html)
+pt_html_filename = f"edicoes/{now_br.strftime('%Y-%m-%d')}_PT.html"
+with open(pt_html_filename, "w", encoding="utf-8") as f:
+    f.write(pt_html_content)
 
 # Salvar o arquivo HTML específico em Japonês com sufixo _JP.html (ex: edicoes/2026-08-11_JP.html)
 date_html_filename = f"edicoes/{now_br.strftime('%Y-%m-%d')}_JP.html"
@@ -308,6 +377,7 @@ with open(latest_html_filename, "w", encoding="utf-8") as f:
     f.write(html_content)
 
 print(f"Edição em Japonês salva em: {date_html_filename}")
-print(f"Tradução em Português salva em: {pt_md_filename}")
+print(f"Tradução em Português salva em: {pt_html_filename}")
+
 
 

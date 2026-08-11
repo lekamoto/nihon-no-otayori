@@ -92,34 +92,35 @@ Encerrar a carta sempre de forma positiva, afetuosa e reconfortante.
 
 ## 8. Nomenclatura dos Arquivos e Tradução para o Português
 
-A geração da edição diária deve produzir **dois arquivos separados**, identificando claramente o idioma no final do nome do arquivo (após a data de geração):
+A geração da edição diária deve produzir **dois arquivos HTML separados**, identificando claramente o idioma no final do nome do arquivo (após a data de geração):
 
 1. **Carta Principal em Japonês (para a leitora):**
    - **Formato:** Arquivo `HTML` responsivo em coluna única.
+   - **Idioma:** Integralmente em Japonês (com leituras auxiliares Furigana).
    - **Padrão de Nome:** `YYYY-MM-DD_JP.html` (ex: `2026-08-11_JP.html`).
    - *(Também mantida uma cópia `index.html` apontando para a edição `JP` mais recente).*
 
 2. **Carta Traduzida para o Português (para conferência do operador/família):**
-   - **Formato:** Arquivo `Markdown` (`_PT.md`) ou `HTML` (`_PT.html`).
-   - **Padrão de Nome:** `YYYY-MM-DD_PT.md` (ex: `2026-08-11_PT.md`).
-   - **Atenção:** Esta versão em português destina-se apenas à conferência do operador e **NÃO** é enviada ou exibida na página principal de leitura da idosa.
+   - **Formato:** Arquivo `HTML` responsivo.
+   - **Idioma:** Integralmente em Português (títulos, notícias, explicações de vocabulário e despedida).
+   - **Padrão de Nome:** `YYYY-MM-DD_PT.html` (ex: `2026-08-11_PT.html`).
+   - **Atenção:** Esta versão em português destina-se à conferência rápida e nítida do operador/família e **NÃO** é exibida na página principal de leitura da idosa.
 
 ---
 
 ## 9. Definição Visual e Renderização (Formato HTML em Coluna Única)
 
-- **Formato Final de Exibição:** Página **HTML** responsiva de altíssima nitidez e vetorização perfeita em qualquer smartphone.
+- **Formato Final de Exibição:** Páginas **HTML** responsivas (`_JP.html` e `_PT.html`) de altíssima nitidez e vetorização perfeita em qualquer smartphone.
 - **Layout:** APENAS UMA COLUNA vertical, ocupando toda a largura útil da tela do smartphone.
 - **Estrutura de Blocos Visual:**
-  1. Cabeçalho (`「日本からのお便り」`, Data, Saudação)
+  1. Cabeçalho (`「日本からのお便り」` / `Carta do Japão`, Data, Saudação)
   2. Bloco de Notícias do Japão (4 notícias reais do dia com foto inédita antes de cada texto)
-  3. Bloco de Notícias do Brasil (3 notícias reais do dia resumidas em japonês com foto inédita antes de cada texto)
+  3. Bloco de Notícias do Brasil (3 notícias reais do dia com foto inédita antes de cada texto)
   4. Compreendendo melhor as palavras (3 a 5 explicações)
   5. Mensagem de incentivo
 - **Acessibilidade Visual (Foco em Glaucoma/Visão Unilateral):**
   - Fonte **EXTRA GRANDE** e linhas bem espaçadas;
   - **Alto contraste** (fundo creme/claro `#FFFDF9`, texto escuro e legível);
-  - Furigana bem posicionado sobre os Kanjis;
   - Regra de Ouro: Em caso de dúvida entre adicionar mais texto ou aumentar a fonte, **escolher aumentar a fonte**.
 
 ---
@@ -129,7 +130,7 @@ A geração da edição diária deve produzir **dois arquivos separados**, ident
 1. Pesquisar notícias REAIS e NOVAS do próprio dia (NHK e Globo).
 2. Selecionar imagens/fotos novas e inéditas para cada notícia.
 3. Redigir a carta em japonês com Furigana e os resumos do Brasil em poucas linhas.
-4. Redigir a tradução completa em português para conferência.
-5. Salvar o arquivo de conferência em português com o sufixo `_PT` (ex: `YYYY-MM-DD_PT.md`).
-6. Renderizar e publicar a carta em japonês no arquivo HTML formatado com o sufixo `_JP` (ex: `YYYY-MM-DD_JP.html`).
-7. Disponibilizar o link web da versão `_JP.html` para envio à leitora.
+4. Redigir a tradução completa da carta integralmente em Português.
+5. Renderizar o arquivo de conferência em Português no formato HTML com o sufixo `_PT.html` (ex: `YYYY-MM-DD_PT.html`).
+6. Renderizar e publicar a carta em japonês no arquivo HTML formatado com o sufixo `_JP.html` (ex: `YYYY-MM-DD_JP.html`).
+7. Disponibilizar o link web da versão `_JP.html` para envio à leitora e anexar os arquivos na notificação.
