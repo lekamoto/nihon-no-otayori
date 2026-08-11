@@ -49,18 +49,22 @@ Escolher automaticamente conforme o horário da geração:
 
 ## 5. Diretrizes para Seleção de Notícias e Fotos
 
-- **Regra do Dia:** A seleção DEVE ser obrigatoriamente de notícias **novas e reais do próprio dia** em que a geração da carta está sendo executada. Nunca repetir notícias de edições anteriores.
+- **Regra Estrita da Data de Execução:** A seleção DEVE ser obrigatoriamente de notícias **publicadas ou ocorridas EXATAMENTE NO MESMO DIA** em que a geração da carta está sendo executada (ex: se a carta é executada em 11/08/2026, as notícias devem ser do dia 11/08/2026).
+  - ❌ **PROIBIDO:** Usar notícias de dias anteriores (mesmo que recentes).
+  - ❌ **PROIBIDO:** Inventar notícias fictícias ou simular fatos.
 - **Filtro de Tom:** Evitar notícias violentas, chocantes, trágicas ou excessivamente políticas/polarizadas.
-- **Desastres Naturais:** Caso existam (terremotos, tufões, etc.), apresentar de forma calma和気あいあい (calma e objetiva), enfatizando recuperação, prevenção, solidariedade e reconstrução.
+- **Desastres Naturais:** Caso existam (terremotos, tufões, etc.), apresentar de forma calma e objetiva, enfatizando recuperação, prevenção, solidariedade e reconstrução.
 - **Fotos Inéditas:** Insira uma **foto nova e distinta antes do texto de cada notícia** (tanto do Japão quanto do Brasil). Nunca repetir fotos utilizadas em dias anteriores para manter a experiência visual agradável e renovada.
 
 ### Bloco de Notícias do Japão (4 Notícias)
+- **Data:** Notícias do dia corrente da execução.
 - **Fonte Preferencial:** NHK (NHK NEWS WEB).
 - **Temas:** Sociedade, ciência, cultura, turismo, meio ambiente, educação e saúde.
 
 ### Bloco de Notícias do Brasil (3 Notícias)
+- **Data:** Notícias do dia corrente da execução.
 - **Fonte Preferencial:** Globo / G1.
-- **Idioma:** O resumo das notícias do Brasil DEVE ser escrito integralmente em japonês (sintético, poucas linhas, sem detalhes excessivos para não cansar a leitora).
+- **Idioma:** O resumo das notícias do Brasil DEVE ser escrito integralmente em japonês na versão `_JP.html` (sintético, poucas linhas) e em português na versão `_PT.html`.
 - **Temas:** Economia, ciência, cultura, infraestrutura, clima, meio ambiente, educação e saúde.
 
 ---
