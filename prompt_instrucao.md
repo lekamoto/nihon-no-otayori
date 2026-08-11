@@ -52,8 +52,10 @@ Escolher automaticamente conforme o horário da geração:
 - **Regra Estrita da Data de Execução:** A seleção DEVE ser obrigatoriamente de notícias **publicadas ou ocorridas EXATAMENTE NO MESMO DIA** em que a geração da carta está sendo executada (ex: se a carta é executada em 11/08/2026, as notícias devem ser do dia 11/08/2026).
   - ❌ **PROIBIDO:** Usar notícias de dias anteriores (mesmo que recentes).
   - ❌ **PROIBIDO:** Inventar notícias fictícias ou simular fatos.
-- **Filtro de Tom:** Evitar notícias violentas, chocantes, trágicas ou excessivamente políticas/polarizadas.
-- **Desastres Naturais:** Caso existam (terremotos, tufões, etc.), apresentar de forma calma e objetiva, enfatizando recuperação, prevenção, solidariedade e reconstrução.
+- **Filtro Estrito de Tom (PROIBIÇÃO ABSOLUTA DE VIOLÊNCIA):**
+  - ❌ **ESTRITAMENTE PROIBIDO:** Notícias sobre crimes, homicídios, violência urbana, acidentes graves, guerras, tragédias, assaltos, mortes chocantes ou temas que causem angústia, medo ou ansiedade na idosa.
+  - 🟢 **FOCO OBRIGATÓRIO:** Notícias serenas, construtivas, científicas, culturais, artísticas, eventos do cotidiano, inovações, histórias humanas inspiradoras e curiosidades agradáveis.
+- **Desastres Naturais:** Caso existam (terremotos, tufões, etc.), apresentar de forma extremamente calma, sóbria e objetiva, focando exclusivamente na solidariedade, esforços de reconstrução, auxílio comunitário e segurança.
 - **Fotos Inéditas:** Insira uma **foto nova e distinta antes do texto de cada notícia** (tanto do Japão quanto do Brasil). Nunca repetir fotos utilizadas em dias anteriores para manter a experiência visual agradável e renovada.
 
 ### Bloco de Notícias do Japão (4 Notícias)
