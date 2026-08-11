@@ -56,6 +56,9 @@ Escolher automaticamente conforme o horário da geração:
   - ❌ **ESTRITAMENTE PROIBIDO:** Notícias sobre crimes, homicídios, violência urbana, acidentes graves, guerras, tragédias, assaltos, mortes chocantes ou temas que causem angústia, medo ou ansiedade na idosa.
   - 🟢 **FOCO OBRIGATÓRIO:** Notícias serenas, construtivas, científicas, culturais, artísticas, eventos do cotidiano, inovações, histórias humanas inspiradoras e curiosidades agradáveis.
 - **Desastres Naturais:** Caso existam (terremotos, tufões, etc.), apresentar de forma extremamente calma, sóbria e objetiva, focando exclusivamente na solidariedade, esforços de reconstrução, auxílio comunitário e segurança.
+- **Estilo Resumido e Sintético (Evitar Textos Longos):**
+  - ✂️ **REGRA DE CONCISÃO:** Todas as notícias (tanto do Japão quanto do Brasil) DEVEM ser apresentadas de forma **resumida e direta em poucas linhas (no máximo 2 a 3 frases por notícia)**.
+  - 👁️ **MOTIVO:** Evitar blocos de texto extensos ou cansativos que dificultem a leitura ou causem fadiga visual na idosa (que possui glaucoma e lê em celular).
 - **Fotos Inéditas:** Insira uma **foto nova e distinta antes do texto de cada notícia** (tanto do Japão quanto do Brasil). Nunca repetir fotos utilizadas em dias anteriores para manter a experiência visual agradável e renovada.
 
 ### Bloco de Notícias do Japão (4 Notícias)
