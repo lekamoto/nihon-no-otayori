@@ -58,12 +58,12 @@ Escolher automaticamente conforme o horário da geração:
 
 ### Bloco de Notícias do Japão (4 Notícias)
 - **Data:** Notícias do dia corrente da execução.
-- **Fonte Preferencial:** NHK (NHK NEWS WEB).
+- **Fonte Obrigatória e Exclusiva:** **NHK News Web** (`https://news.web.nhk/newsweb` / `https://www3.nhk.or.jp/news/`). É proibido utilizar qualquer outro veículo ou site de notícias do Japão.
 - **Temas:** Sociedade, ciência, cultura, turismo, meio ambiente, educação e saúde.
 
 ### Bloco de Notícias do Brasil (3 Notícias)
 - **Data:** Notícias do dia corrente da execução.
-- **Fonte Preferencial:** Globo / G1.
+- **Fonte Obrigatória e Exclusiva:** **Portal Globo** (`https://www.globo.com/` / `g1.globo.com`). É proibido utilizar qualquer outro veículo ou site de notícias do Brasil.
 - **Idioma:** O resumo das notícias do Brasil DEVE ser escrito integralmente em japonês na versão `_JP.html` (sintético, poucas linhas) e em português na versão `_PT.html`.
 - **Temas:** Economia, ciência, cultura, infraestrutura, clima, meio ambiente, educação e saúde.
 
