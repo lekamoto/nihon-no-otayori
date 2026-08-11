@@ -77,16 +77,12 @@ default_images_br = [
 ]
 
 if not nhk_news:
-    nhk_news = [
-        {"title": "古都・奈良の 新しい 観光キャンペーンが 開始", "description": "歴史と自然を楽しむのんびりした旅が人気を集めています。", "image": default_images_jp[0]},
-        {"title": "徳島県で 日本最古級の トカゲ化石を 発見", "description": "大昔の生き物の暮らしを解き明かす貴重な発見です。", "image": default_images_jp[1]},
-        {"title": "夏の 伝統「ラジオ体操」が 全国を 巡回", "description": "朝の爽やかな空気の中で体を動かす習慣が好評です。", "image": default_images_jp[2]},
-        {"title": "美術を楽しむ「日曜美術館 50年展」が 開催中", "description": "美しい絵画や工芸品が人々の心を和ませています。", "image": default_images_jp[3]}
-    ]
-else:
-    for idx, item in enumerate(nhk_news):
-        if not item.get('image'):
-            item['image'] = default_images_jp[idx % len(default_images_jp)]
+    print("Aviso: RSS da NHK não retornou notícias. Tentando novamete com endpoint alternativo...")
+    nhk_news = fetch_rss("https://www3.nhk.or.jp/rss/news/cat0.xml", max_items=4)
+
+for idx, item in enumerate(nhk_news):
+    if not item.get('image'):
+        item['image'] = default_images_jp[idx % len(default_images_jp)]
 
 def translate_to_ja(text):
     if not text:
