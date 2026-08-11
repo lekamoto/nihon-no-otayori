@@ -231,8 +231,74 @@ html_content = f"""<!DOCTYPE html>
 </html>
 """
 
-# Salvar o arquivo HTML específico da data (ex: edicoes/2026-08-07.html)
-date_html_filename = f"edicoes/{now_br.strftime('%Y-%m-%d')}.html"
+# Gerar o arquivo de tradução em Português para conferência (ex: edicoes/2026-08-11_PT.md)
+pt_md_filename = f"edicoes/{now_br.strftime('%Y-%m-%d')}_PT.md"
+pt_md_content = f"""# Carta do Japão (Edição de Conferência em Português)
+**Data:** {date_str_br} ({date_str_jp})  
+**Horário:** {now_br.strftime('%H:%M')} ({period})
+
+---
+
+## 1. Carta em Japonês (Tradução)
+
+Querida mãe,  
+{greeting} (Boa {period.lower()}).  
+Hoje também lhe entrego esta carta do Japão.  
+Por favor, leia com calma.  
+
+---
+
+### 【Notícias do Japão】
+
+1. **{nhk_news[0]['title']}**  
+   {nhk_news[0]['description']}
+
+2. **{nhk_news[1]['title'] if len(nhk_news) > 1 else 'Informações Culturais do Japão'}**  
+   {nhk_news[1]['description'] if len(nhk_news) > 1 else 'Exposições de história e arte estão sendo realizadas em várias partes do país.'}
+
+3. **{nhk_news[2]['title'] if len(nhk_news) > 2 else 'Saúde e Estilo de Vida'}**  
+   {nhk_news[2]['description'] if len(nhk_news) > 2 else 'O hábito da manhã ajuda a manter a saúde das pessoas.'}
+
+4. **{nhk_news[3]['title'] if len(nhk_news) > 3 else 'Natureza e Meio Ambiente'}**  
+   {nhk_news[3]['description'] if len(nhk_news) > 3 else 'Iniciativas para valorizar as belas quatro estações continuam.'}
+
+---
+
+### 【Notícias do Brasil (Resumo em Português)】
+
+1. **{g1_news_jp[0]['title']}**  
+   {g1_news_jp[0]['description']}
+
+2. **{g1_news_jp[1]['title']}**  
+   {g1_news_jp[1]['description']}
+
+3. **{g1_news_jp[2]['title']}**  
+   {g1_news_jp[2]['description']}
+
+---
+
+### 【Compreendendo Melhor as Palavras】
+
+1. **Campanha (Kyampēn):** Atividade publicitária realizada para atingir um objetivo.
+2. **Parceria (Pātonāshippu):** Relação de cooperação ou aliança mútua.
+3. **Patrimônio Mundial da UNESCO (Yunesuko Sekai Isan):** Bens culturais ou naturais protegidos como tesouros da humanidade.
+4. **Junkai (Circulação):** Visitar vários locais em sequência.
+
+---
+
+### 【Mensagem de Incentivo do Dia】
+
+Hoje também foi um dia maravilhoso.  
+Amanhã certamente será outro dia maravilhoso.  
+Por favor, descanse bem.  
+Tenha bons sonhos. 🌟
+"""
+
+with open(pt_md_filename, "w", encoding="utf-8") as f:
+    f.write(pt_md_content)
+
+# Salvar o arquivo HTML específico em Japonês com sufixo _JP.html (ex: edicoes/2026-08-11_JP.html)
+date_html_filename = f"edicoes/{now_br.strftime('%Y-%m-%d')}_JP.html"
 latest_html_filename = "edicoes/index.html"
 
 with open(date_html_filename, "w", encoding="utf-8") as f:
@@ -241,5 +307,7 @@ with open(date_html_filename, "w", encoding="utf-8") as f:
 with open(latest_html_filename, "w", encoding="utf-8") as f:
     f.write(html_content)
 
-print(f"Edição HTML diária gerada com sucesso em: {date_html_filename}")
+print(f"Edição em Japonês salva em: {date_html_filename}")
+print(f"Tradução em Português salva em: {pt_md_filename}")
+
 

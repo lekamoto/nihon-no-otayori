@@ -39,9 +39,11 @@ jobs:
       - name: Identificar Edição do Dia e Enviar E-mail
         shell: powershell
         run: |
-          $today_html = Get-ChildItem -Path "edicoes" -Filter "????-??-??.html" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          $file_name = [System.IO.Path]::GetFileName($today_html.FullName)
-          "HTML_PATH=$($today_html.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $today_jp = Get-ChildItem -Path "edicoes" -Filter "*_JP.html" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          $today_pt = Get-ChildItem -Path "edicoes" -Filter "*_PT.md" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          $file_name = [System.IO.Path]::GetFileName($today_jp.FullName)
+          "JP_PATH=$($today_jp.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "PT_PATH=$($today_pt.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           "PAGE_URL=https://lekamoto.github.io/nihon-no-otayori/edicoes/$file_name" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Enviar Carta por E-mail
@@ -63,6 +65,6 @@ jobs:
             🔗 Link direto para leitura no celular/WhatsApp:
             ${{ env.PAGE_URL }}
             
-            (O arquivo HTML também está em anexo para backup).
-          attachments: ${{ env.HTML_PATH }}
+            (A tradução em Português para conferência está em anexo).
+          attachments: ${{ env.PT_PATH }},${{ env.JP_PATH }}
 
