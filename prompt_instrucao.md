@@ -94,9 +94,11 @@ Encerrar a carta sempre de forma positiva, afetuosa e reconfortante.
 
 ---
 
-## 8. Nomenclatura dos Arquivos e Tradução para o Português
+## 8. Nomenclatura dos Arquivos, Tradução e Sobrescrita
 
 A geração da edição diária deve produzir **dois arquivos HTML separados**, identificando claramente o idioma no final do nome do arquivo (após a data de geração):
+
+- **Regra de Sobrescrita / Substituição:** Se os arquivos da edição do mesmo dia (`YYYY-MM-DD_JP.html` ou `YYYY-MM-DD_PT.html`) já existirem no repositório (ex: devido a reexecuções no mesmo dia), eles **DEVEM ser obrigatoriamente sobrescritos e substituídos pelo conteúdo gerado na última execução**.
 
 1. **Carta Principal em Japonês (para a leitora):**
    - **Formato:** Arquivo `HTML` responsivo em coluna única.
