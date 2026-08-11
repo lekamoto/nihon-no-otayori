@@ -88,28 +88,44 @@ else:
         if not item.get('image'):
             item['image'] = default_images_jp[idx % len(default_images_jp)]
 
-# AJUSTE 1: Resumos das notícias do Brasil traduzidas para Japonês simples em poucas linhas
-g1_news_jp = [
-    {
-        "title": "アマゾンの 歴史的 劇場が ユネスコ世界遺産に 登録",
-        "description": "ベレンとマナウスの美しい劇場が世界遺産に選ばれました。ブラジルが誇る歴史的建築です。",
-        "image": default_images_br[0]
-    },
-    {
-        "title": "サンパウロで 「気候週間2026」会議が 開催",
-        "description": "森や環境を守るための新しい取り組みが話し合われ、未来に向けた大切な一歩となりました。",
-        "image": default_images_br[1]
-    },
-    {
-        "title": "ブラジルと インドの 経済パートナーシップが 拡大",
-        "description": "貿易や技術の交流を深める訪問が行われ、お互いの協力関係が強まっています。",
-        "image": default_images_br[2]
-    }
-]
+def translate_to_ja(text):
+    if not text:
+        return ""
+    try:
+        url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=pt&tl=ja&dt=t&q=" + urllib.parse.quote(text)
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            translated = "".join([sentence[0] for sentence in data[0] if sentence[0]])
+            return html.escape(translated)
+    except Exception as e:
+        print(f"Erro na tradução para JA: {e}")
+        return text
+
+# Notícias do Brasil dinâmicas do G1 traduzidas para Japonês
+g1_news_jp = []
+if g1_news:
+    for idx, item in enumerate(g1_news[:3]):
+        title_ja = translate_to_ja(item['title'])
+        desc_ja = translate_to_ja(item['description'])
+        img_url = item.get('image') or default_images_br[idx % len(default_images_br)]
+        g1_news_jp.append({
+            'title': title_ja,
+            'description': desc_ja,
+            'title_pt': item['title'],
+            'description_pt': item['description'],
+            'image': img_url
+        })
+else:
+    g1_news_jp = [
+        {"title": "アマゾンの 歴史的 劇場が ユネスコ世界遺産に 登録", "description": "ベレンとマナウスの美しい劇場が世界遺産に選ばれました。", "title_pt": "Teatros da Amazônia são patrimônio da UNESCO", "description_pt": "Teatros históricos de Belém e Manaus viram patrimônio.", "image": default_images_br[0]},
+        {"title": "サンパウロで 気候会議が 開催", "description": "森を守るための取り組みが話し合われました。", "title_pt": "Conferência do Clima em São Paulo", "description_pt": "Discussions em SP sobre proteção da floresta.", "image": default_images_br[1]},
+        {"title": "ブラジルの 経済パートナーシップが 拡大", "description": "新しい貿易や技術の交流が深まっています。", "title_pt": "Parcerias econômicas do Brasil se expandem", "description_pt": "Aumento do comércio e cooperação tecnológica.", "image": default_images_br[2]}
+    ]
 
 os.makedirs("edicoes", exist_ok=True)
 
-# AJUSTE 3: Fotos antes de cada notícia para tornar a leitura mais agradável
+# Fotos antes de cada notícia para tornar a leitura mais agradável
 jp_news_html = ""
 for idx, item in enumerate(nhk_news[:4], 1):
     jp_news_html += f"""
@@ -261,23 +277,16 @@ for idx, item in enumerate(nhk_news[:4], 1):
     </div>
     """
 
-br_news_pt_html = """
+# Montagem dos blocos de notícias do Brasil em Português dinâmicas do G1
+br_news_pt_html = ""
+for idx, item in enumerate(g1_news_jp[:3], 1):
+    br_news_pt_html += f"""
     <div class="news-item">
-      <img src="https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?w=600&q=80" class="news-img" alt="Brasil 1">
-      <div class="news-title">1. Teatros Históricos da Amazônia são Registrados como Patrimônio Mundial da UNESCO</div>
-      <div class="news-body">O Teatro da Paz em Belém e o Teatro Amazonas em Manaus foram escolhidos como patrimônios mundiais da UNESCO. É uma arquitetura histórica deslumbrante de que o Brasil se orgulha.</div>
+      <img src="{item['image']}" class="news-img" alt="Brasil {idx}">
+      <div class="news-title">{idx}. {item['title_pt']}</div>
+      <div class="news-body">{item['description_pt']}</div>
     </div>
-    <div class="news-item">
-      <img src="https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=600&q=80" class="news-img" alt="Brasil 2">
-      <div class="news-title">2. Conferência "Semana do Clima 2026" é Realizada em São Paulo</div>
-      <div class="news-body">Novas iniciativas para proteger a natureza e as florestas foram debatidas em São Paulo, representando um passo importante para o futuro sustentável.</div>
-    </div>
-    <div class="news-item">
-      <img src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=600&q=80" class="news-img" alt="Brasil 3">
-      <div class="news-title">3. Expansão da Parceria Econômica entre Brasil e Índia</div>
-      <div class="news-body">Representantes do governo brasileiro visitaram a Índia para fortalecer o comércio e o intercâmbio tecnológico entre as duas nações.</div>
-    </div>
-"""
+    """
 
 pt_html_content = f"""<!DOCTYPE html>
 <html lang="pt-BR">
