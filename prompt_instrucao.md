@@ -102,9 +102,10 @@ A geração da edição diária deve produzir **dois arquivos HTML separados**, 
 
 2. **Carta Traduzida para o Português (para conferência do operador/família):**
    - **Formato:** Arquivo `HTML` responsivo (`YYYY-MM-DD_PT.html`).
-   - **Idioma:** 100% no idioma Português em TODAS as partes (título, saudações, as 4 notícias do Japão traduzidas para português, as 3 notícias do Brasil traduzidas para português, a explicação do vocabulário em português e a mensagem final).
+   - **Idioma:** 100% no idioma Português em TODAS as partes.
+   - **Regra Estrita de Tradução:** As 4 notícias do Japão oriundas da NHK **DEVEM ser obrigatoriamente traduzidas para o Português fluente e correto**. É estritamente proibido deixar títulos ou descrições em japonês no arquivo `_PT.html`.
    - **Padrão de Nome:** `YYYY-MM-DD_PT.html` (ex: `2026-08-11_PT.html`).
-   - **Atenção:** Esta versão destina-se à conferência completa e rápida pelo operador/família.
+   - **Atenção:** Esta versão destina-se à conferência completa pelo operador/família.
 
 ---
 

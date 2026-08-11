@@ -231,14 +231,30 @@ html_content = f"""<!DOCTYPE html>
 </html>
 """
 
+def translate_to_pt(text):
+    if not text:
+        return ""
+    try:
+        url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=pt&dt=t&q=" + urllib.parse.quote(text)
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            translated = "".join([sentence[0] for sentence in data[0] if sentence[0]])
+            return html.escape(translated)
+    except Exception as e:
+        print(f"Erro na tradução: {e}")
+        return text
+
 # Montagem dos blocos de notícias em Português para o arquivo HTML de conferência
 jp_news_pt_html = ""
 for idx, item in enumerate(nhk_news[:4], 1):
+    title_pt = translate_to_pt(item['title'])
+    desc_pt = translate_to_pt(item['description'])
     jp_news_pt_html += f"""
     <div class="news-item">
       <img src="{item['image']}" class="news-img" alt="Notícia {idx}">
-      <div class="news-title">{idx}. {item['title']}</div>
-      <div class="news-body">{item['description']}</div>
+      <div class="news-title">{idx}. {title_pt}</div>
+      <div class="news-body">{desc_pt}</div>
     </div>
     """
 
