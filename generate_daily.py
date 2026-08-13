@@ -18,11 +18,13 @@ BAD_WORDS_PT = ["morte", "morre", "morrer", "acidente", "crime", "preso", "assal
 def get_today_date():
     return datetime.now(BR_TZ)
 
-def is_valid_date(pubdate_str, target_dt, is_japan=False):
+def is_valid_date(pubdate_str, target_dt, is_japan=False, max_days_old=7):
     """
-    Valida se a pubDate fornecida pelo RSS pertence à janela de publicação válida.
-    Para notícias do Japão, converte para JP_TZ (+9h). Para Brasil, utiliza BR_TZ (-3h).
-    Considera notícias publicadas no mesmo dia calendário ou nas últimas 24 horas.
+    Valida a pubDate fornecida pelo RSS.
+    Para notícias do Japão (NHK), aceita matérias recentes publicadas no feed público (max_days_old=7) no fuso JST (+9h),
+    evitando seções em branco quando o servidor da NHK não publica notícias no próprio dia.
+    Para o Brasil, prioriza as notícias publicadas no próprio dia / últimas 48h.
+    NÃO utiliza notícias antigas hardcoded.
     """
     if not pubdate_str:
         return False
@@ -32,15 +34,14 @@ def is_valid_date(pubdate_str, target_dt, is_japan=False):
         dt_local = dt.astimezone(tz)
         target_local = target_dt.astimezone(tz)
         
-        # Mesmo dia no fuso correspondente ou publicada nas últimas 24h
-        is_same_calendar_day = (dt_local.year == target_local.year and 
-                                dt_local.month == target_local.month and 
-                                dt_local.day == target_local.day)
+        diff_days = (target_local - dt_local).total_seconds() / 86400.0
         
-        diff_hours = (target_local - dt_local).total_seconds() / 3600.0
-        is_within_24h = (0 <= diff_hours <= 24)
-        
-        return is_same_calendar_day or is_within_24h
+        if is_japan:
+            # Aceitar notícias recentes da NHK (até 7 dias)
+            return (0 <= diff_days <= max_days_old)
+        else:
+            # Notícias do Brasil: mesmo dia calendário ou últimas 48h
+            return (0 <= diff_days <= 3.0)
     except Exception:
         today_day_str = target_dt.strftime("%d %b %Y")
         today_iso_str = target_dt.strftime("%Y-%m-%d")

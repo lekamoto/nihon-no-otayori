@@ -15,27 +15,27 @@ class TestStrictDateAndNoFallback(unittest.TestCase):
         self.assertTrue(generate_daily.is_valid_date(pubdate_today, self.target_dt))
 
     def test_is_same_day_invalid_yesterday(self):
-        # Data de mais de 48h atrás
-        pubdate_old = "Mon, 10 Aug 2026 23:59:59 +0000"
-        self.assertFalse(generate_daily.is_valid_date(pubdate_old, self.target_dt))
+        # Data de mais de 10 dias atrás (fora da janela aceita)
+        pubdate_old = "Sat, 01 Aug 2026 23:59:59 +0000"
+        self.assertFalse(generate_daily.is_valid_date(pubdate_old, self.target_dt, max_days_old=7))
 
     def test_scenario_a_today_news(self):
         """TESTE A: RSS contém notícias de hoje. Resultado esperado: notícias de hoje aparecem."""
         pubdate = "Thu, 13 Aug 2026 12:00:00 -0300"
-        self.assertTrue(generate_daily.is_valid_date(pubdate, self.target_dt))
+        self.assertTrue(generate_daily.is_valid_date(pubdate, self.target_dt, max_days_old=7))
 
     def test_scenario_b_yesterday_news_only(self):
-        """TESTE B: RSS contém somente notícias antigas. Resultado esperado: nenhuma notícia aparece."""
-        pubdate = "Mon, 10 Aug 2026 18:00:00 -0300"
-        self.assertFalse(generate_daily.is_valid_date(pubdate, self.target_dt))
+        """TESTE B: RSS contém somente notícias antigas (fora de 7 dias). Resultado esperado: nenhuma notícia aparece."""
+        pubdate = "Sat, 01 Aug 2026 18:00:00 -0300"
+        self.assertFalse(generate_daily.is_valid_date(pubdate, self.target_dt, max_days_old=7))
 
     def test_scenario_c_mixed_news(self):
-        """TESTE C: RSS contém notícias antigas e de hoje. Resultado esperado: somente notícias de hoje são aceitas."""
+        """TESTE C: RSS contém notícias antigas (>7 dias) e de hoje. Resultado esperado: somente notícias recentes são aceitas."""
         items = [
-            {"pubDate": "Mon, 10 Aug 2026 18:00:00 -0300", "title": "Noticia Antiga"},
+            {"pubDate": "Sat, 01 Aug 2026 18:00:00 -0300", "title": "Noticia Antiga"},
             {"pubDate": "Thu, 13 Aug 2026 09:00:00 -0300", "title": "Noticia de Hoje"}
         ]
-        valid_items = [item for item in items if generate_daily.is_valid_date(item["pubDate"], self.target_dt)]
+        valid_items = [item for item in items if generate_daily.is_valid_date(item["pubDate"], self.target_dt, max_days_old=7)]
         self.assertEqual(len(valid_items), 1)
         self.assertEqual(valid_items[0]["title"], "Noticia de Hoje")
 
