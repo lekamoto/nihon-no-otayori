@@ -7,36 +7,89 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 
-# Configuração de Fuso Horário do Brasil (UTC-3)
+# Configurações de Fuso Horário
 BR_TZ = timezone(timedelta(hours=-3))
+JP_TZ = timezone(timedelta(hours=9))
+
+# Palavras-chave estritamente proibidas para o filtro de tom (Notícias Violentas/Trágicas)
+BAD_WORDS_JP = ["死亡", "事故", "事件", "逮捕", "火災", "殺害", "容疑者", "暴行", "遺体", "浸水", "水難", "地震", "被害", "怪我"]
+BAD_WORDS_PT = ["morte", "morre", "morrer", "acidente", "crime", "preso", "assalto", "homicídio", "tragédia", "vítima", "presos", "polícia", "facção", "tiroteio"]
 
 def get_today_date():
     return datetime.now(BR_TZ)
 
-def is_same_day(pubdate_str, target_dt):
+def is_valid_date(pubdate_str, target_dt, is_japan=False):
     """
-    Valida estritamente se a pubDate fornecida pelo RSS pertence ao mesmo dia/mês/ano
-    da data do jornal (target_dt no fuso horário BR_TZ).
+    Valida se a pubDate fornecida pelo RSS pertence à janela de publicação válida.
+    Para notícias do Japão, converte para JP_TZ (+9h). Para Brasil, utiliza BR_TZ (-3h).
+    Considera notícias publicadas no mesmo dia calendário ou nas últimas 24 horas.
     """
     if not pubdate_str:
         return False
     try:
         dt = parsedate_to_datetime(pubdate_str)
-        dt_br = dt.astimezone(BR_TZ)
-        return (dt_br.year == target_dt.year and 
-                dt_br.month == target_dt.month and 
-                dt_br.day == target_dt.day)
+        tz = JP_TZ if is_japan else BR_TZ
+        dt_local = dt.astimezone(tz)
+        target_local = target_dt.astimezone(tz)
+        
+        # Mesmo dia no fuso correspondente ou publicada nas últimas 24h
+        is_same_calendar_day = (dt_local.year == target_local.year and 
+                                dt_local.month == target_local.month and 
+                                dt_local.day == target_local.day)
+        
+        diff_hours = (target_local - dt_local).total_seconds() / 3600.0
+        is_within_24h = (0 <= diff_hours <= 24)
+        
+        return is_same_calendar_day or is_within_24h
     except Exception:
-        # Tenta fallback de busca por string exata formatada se o parse falhar
         today_day_str = target_dt.strftime("%d %b %Y")
         today_iso_str = target_dt.strftime("%Y-%m-%d")
         return (today_day_str in pubdate_str) or (today_iso_str in pubdate_str)
 
-def fetch_rss(url, target_dt, max_items=4):
+def contains_violent_content(title, description, is_japan=False):
     """
-    Busca notícias do RSS e aplica FILTRO ESTRITO DE DATA.
-    Descarta qualquer notícia que não seja do próprio dia (target_dt).
-    NÃO possui fallback nem notícias hardcoded. Se não houver notícias de hoje, retorna [].
+    Verifica se o título ou a descrição da notícia contém termos violentos, trágicos ou policiais.
+    """
+    bad_words = BAD_WORDS_JP if is_japan else BAD_WORDS_PT
+    text = (title + " " + description).lower()
+    for word in bad_words:
+        if word.lower() in text:
+            return True
+    return False
+
+def summarize_text(text, max_sentences=2, max_length=150):
+    """
+    Resume e sintetiza o texto em no máximo 2 a 3 frases curtas e corta se exceder max_length.
+    """
+    if not text:
+        return ""
+    # Truncar por pontuação
+    clean_text = text.replace('\n', ' ').strip()
+    
+    # Se for texto em japonês (delimitado por 。)
+    if '。' in clean_text:
+        sentences = [s.strip() for s in clean_text.split('。') if s.strip()]
+        summarized = '。'.join(sentences[:max_sentences])
+        if summarized and not summarized.endswith('。'):
+            summarized += '。'
+    else:
+        # Texto em português (delimitado por .)
+        sentences = [s.strip() for s in clean_text.split('.') if s.strip()]
+        summarized = '. '.join(sentences[:max_sentences])
+        if summarized and not summarized.endswith('.'):
+            summarized += '.'
+
+    if len(summarized) > max_length:
+        summarized = summarized[:max_length].rstrip() + "..."
+    return summarized
+
+def fetch_rss(url, target_dt, max_items=4, is_japan=False):
+    """
+    Busca notícias do RSS aplicando:
+    1. FILTRO DE DATA (Mesmo dia / últimas 24h)
+    2. FILTRO DE CONTEÚDO VIOLENTO/POLICIAL
+    3. RESUMO E SINTETIZAÇÃO AUTOMÁTICA
+    NÃO possui fallbacks hardcoded nem reaproveita notícias antigas.
     """
     items = []
     try:
@@ -52,13 +105,19 @@ def fetch_rss(url, target_dt, max_items=4):
                     raw_desc = item.find('description').text if item.find('description') is not None else ""
                     raw_pubdate = item.find('pubDate').text if item.find('pubDate') is not None else ""
 
-                    # FILTRO ESTRITO DE DATA: descartar qualquer notícia de outra data
-                    if not is_same_day(raw_pubdate, target_dt):
+                    # 1. FILTRO DE DATA
+                    if not is_valid_date(raw_pubdate, target_dt, is_japan=is_japan):
                         continue
 
+                    # 2. FILTRO DE VIOLÊNCIA
+                    if contains_violent_content(raw_title, raw_desc, is_japan=is_japan):
+                        continue
+
+                    # 3. RESUMO E SINTETIZAÇÃO
                     title = html.escape(raw_title.strip())
                     link = html.escape(raw_link.strip())
-                    description = html.escape(raw_desc.strip())
+                    short_desc = summarize_text(raw_desc, max_sentences=2, max_length=160)
+                    description = html.escape(short_desc)
 
                     image_url = ""
                     media = item.find('{http://search.yahoo.com/mrss/}content')
@@ -126,20 +185,20 @@ def generate_edition(target_dt=None):
         greeting = "こんばんは"
         period = "Noite"
 
-    # Buscar Notícias VÁLIDAS do Próprio Dia
-    nhk_news = fetch_rss("https://www3.nhk.or.jp/rss/news/cat0.xml", target_dt, max_items=4)
-    g1_news = fetch_rss("https://g1.globo.com/dynamo/rss2.xml", target_dt, max_items=3)
+    # Buscar Notícias VÁLIDAS, FILTRADAS e RESUMIDAS
+    nhk_news = fetch_rss("https://www3.nhk.or.jp/rss/news/cat0.xml", target_dt, max_items=4, is_japan=True)
+    g1_news = fetch_rss("https://g1.globo.com/dynamo/rss2.xml", target_dt, max_items=3, is_japan=False)
 
     g1_news_jp = []
     if g1_news:
         for item in g1_news[:3]:
             title_ja = translate_to_ja(item['title'])
-            desc_ja = translate_to_ja(item['description'])
+            desc_ja = summarize_text(translate_to_ja(item['description']), max_sentences=2, max_length=140)
             g1_news_jp.append({
                 'title': title_ja,
                 'description': desc_ja,
                 'title_pt': item['title'],
-                'description_pt': item['description'],
+                'description_pt': summarize_text(item['description'], max_sentences=2, max_length=160),
                 'image': item.get('image', '')
             })
 
@@ -171,7 +230,7 @@ def generate_edition(target_dt=None):
     </div>
     """
 
-    # Seção de Vocabulário: 100% DINÂMICA (vazia se não houver notícias válidas do dia)
+    # Seção de Vocabulário: 100% DINÂMICA (omite se não houver notícias válidas no dia)
     vocab_section_jp = ""
     vocab_section_pt = ""
     if nhk_news:
@@ -278,7 +337,7 @@ def generate_edition(target_dt=None):
     if nhk_news:
         for idx, item in enumerate(nhk_news[:4], 1):
             title_pt = translate_to_pt(item['title'])
-            desc_pt = translate_to_pt(item['description'])
+            desc_pt = summarize_text(translate_to_pt(item['description']), max_sentences=2, max_length=160)
             img_tag = f'<img src="{item["image"]}" class="news-img" alt="Notícia {idx}">' if item.get('image') else ''
             jp_news_pt_html += f"""
     <div class="news-item">
