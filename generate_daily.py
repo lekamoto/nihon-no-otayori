@@ -5,26 +5,39 @@ import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
+from email.utils import parsedate_to_datetime
 
 # Configuração de Fuso Horário do Brasil (UTC-3)
 BR_TZ = timezone(timedelta(hours=-3))
-now_br = datetime.now(BR_TZ)
-date_str_jp = now_br.strftime("%Y年%m月%d日")
-date_str_br = now_br.strftime("%d/%m/%Y")
-hour = now_br.hour
 
-# Lógica de Saudação por Horário
-if hour < 12:
-    greeting = "おはようございます"
-    period = "Manhã"
-elif hour < 18:
-    greeting = "こんにちは"
-    period = "Tarde"
-else:
-    greeting = "こんばんは"
-    period = "Noite"
+def get_today_date():
+    return datetime.now(BR_TZ)
 
-def fetch_rss(url, max_items=4, enforce_today=True):
+def is_same_day(pubdate_str, target_dt):
+    """
+    Valida estritamente se a pubDate fornecida pelo RSS pertence ao mesmo dia/mês/ano
+    da data do jornal (target_dt no fuso horário BR_TZ).
+    """
+    if not pubdate_str:
+        return False
+    try:
+        dt = parsedate_to_datetime(pubdate_str)
+        dt_br = dt.astimezone(BR_TZ)
+        return (dt_br.year == target_dt.year and 
+                dt_br.month == target_dt.month and 
+                dt_br.day == target_dt.day)
+    except Exception:
+        # Tenta fallback de busca por string exata formatada se o parse falhar
+        today_day_str = target_dt.strftime("%d %b %Y")
+        today_iso_str = target_dt.strftime("%Y-%m-%d")
+        return (today_day_str in pubdate_str) or (today_iso_str in pubdate_str)
+
+def fetch_rss(url, target_dt, max_items=4):
+    """
+    Busca notícias do RSS e aplica FILTRO ESTRITO DE DATA.
+    Descarta qualquer notícia que não seja do próprio dia (target_dt).
+    NÃO possui fallback nem notícias hardcoded. Se não houver notícias de hoje, retorna [].
+    """
     items = []
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
@@ -39,7 +52,10 @@ def fetch_rss(url, max_items=4, enforce_today=True):
                     raw_desc = item.find('description').text if item.find('description') is not None else ""
                     raw_pubdate = item.find('pubDate').text if item.find('pubDate') is not None else ""
 
-                    # Sanitização contra XSS / HTML Injection
+                    # FILTRO ESTRITO DE DATA: descartar qualquer notícia de outra data
+                    if not is_same_day(raw_pubdate, target_dt):
+                        continue
+
                     title = html.escape(raw_title.strip())
                     link = html.escape(raw_link.strip())
                     description = html.escape(raw_desc.strip())
@@ -51,38 +67,18 @@ def fetch_rss(url, max_items=4, enforce_today=True):
                     elif item.find('enclosure') is not None and 'url' in item.find('enclosure').attrib:
                         image_url = html.escape(item.find('enclosure').attrib['url'].strip())
 
-                    items.append({'title': title, 'link': link, 'description': description, 'image': image_url, 'pubDate': raw_pubdate})
+                    items.append({
+                        'title': title, 
+                        'link': link, 
+                        'description': description, 
+                        'image': image_url, 
+                        'pubDate': raw_pubdate
+                    })
                     if len(items) >= max_items:
                         break
     except Exception as e:
         print(f"Erro ao buscar RSS de {url}: {e}")
     return items
-
-# Buscar Notícias Reais via RSS (NHK e G1)
-nhk_news = fetch_rss("https://www3.nhk.or.jp/rss/news/cat0.xml", max_items=4)
-g1_news = fetch_rss("https://g1.globo.com/dynamo/rss2.xml", max_items=3)
-
-# Imagens ilustrativas padrão de alta qualidade para leitura agradável
-default_images_jp = [
-    "https://images.unsplash.com/photo-1545569341-9eb8b30979d9?w=600&q=80",
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80",
-    "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=600&q=80",
-    "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=600&q=80"
-]
-
-default_images_br = [
-    "https://images.unsplash.com/photo-1516306580123-e6e52b1b7b5f?w=600&q=80",
-    "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=600&q=80",
-    "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=600&q=80"
-]
-
-if not nhk_news:
-    print("Aviso: RSS da NHK não retornou notícias. Tentando novamete com endpoint alternativo...")
-    nhk_news = fetch_rss("https://www3.nhk.or.jp/rss/news/cat0.xml", max_items=4)
-
-for idx, item in enumerate(nhk_news):
-    if not item.get('image'):
-        item['image'] = default_images_jp[idx % len(default_images_jp)]
 
 def translate_to_ja(text):
     if not text:
@@ -98,46 +94,101 @@ def translate_to_ja(text):
         print(f"Erro na tradução para JA: {e}")
         return text
 
-# Notícias do Brasil dinâmicas do G1 traduzidas para Japonês
-g1_news_jp = []
-if g1_news:
-    for idx, item in enumerate(g1_news[:3]):
-        title_ja = translate_to_ja(item['title'])
-        desc_ja = translate_to_ja(item['description'])
-        img_url = item.get('image') or default_images_br[idx % len(default_images_br)]
-        g1_news_jp.append({
-            'title': title_ja,
-            'description': desc_ja,
-            'title_pt': item['title'],
-            'description_pt': item['description'],
-            'image': img_url
-        })
+def translate_to_pt(text):
+    if not text:
+        return ""
+    try:
+        url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=pt&dt=t&q=" + urllib.parse.quote(text)
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode('utf-8'))
+            translated = "".join([sentence[0] for sentence in data[0] if sentence[0]])
+            return html.escape(translated)
+    except Exception as e:
+        print(f"Erro na tradução para PT: {e}")
+        return text
 
-os.makedirs("edicoes", exist_ok=True)
+def generate_edition(target_dt=None):
+    if target_dt is None:
+        target_dt = get_today_date()
 
-# Fotos antes de cada notícia para tornar a leitura mais agradável
-jp_news_html = ""
-for idx, item in enumerate(nhk_news[:4], 1):
-    jp_news_html += f"""
+    date_str_jp = target_dt.strftime("%Y年%m月%d日")
+    date_str_br = target_dt.strftime("%d/%m/%Y")
+    hour = target_dt.hour
+
+    if hour < 12:
+        greeting = "おはようございます"
+        period = "Manhã"
+    elif hour < 18:
+        greeting = "こんにちは"
+        period = "Tarde"
+    else:
+        greeting = "こんばんは"
+        period = "Noite"
+
+    # Buscar Notícias VÁLIDAS do Próprio Dia
+    nhk_news = fetch_rss("https://www3.nhk.or.jp/rss/news/cat0.xml", target_dt, max_items=4)
+    g1_news = fetch_rss("https://g1.globo.com/dynamo/rss2.xml", target_dt, max_items=3)
+
+    g1_news_jp = []
+    if g1_news:
+        for item in g1_news[:3]:
+            title_ja = translate_to_ja(item['title'])
+            desc_ja = translate_to_ja(item['description'])
+            g1_news_jp.append({
+                'title': title_ja,
+                'description': desc_ja,
+                'title_pt': item['title'],
+                'description_pt': item['description'],
+                'image': item.get('image', '')
+            })
+
+    os.makedirs("edicoes", exist_ok=True)
+
+    # Montagem do HTML das notícias do Japão
+    jp_news_html = ""
+    if nhk_news:
+        for idx, item in enumerate(nhk_news[:4], 1):
+            img_tag = f'<img src="{item["image"]}" class="news-img" alt="Foto da Notícia">' if item.get('image') else ''
+            jp_news_html += f"""
     <div class="news-item">
-      <img src="{item['image']}" class="news-img" alt="Foto da Notícia">
+      {img_tag}
       <div class="news-title">{idx}. {item['title']}</div>
       <div class="news-body">{item['description']}</div>
     </div>
     """
 
-br_news_html = ""
-for idx, item in enumerate(g1_news_jp[:3], 1):
-    br_news_html += f"""
+    # Montagem do HTML das notícias do Brasil (em Japonês)
+    br_news_html = ""
+    if g1_news_jp:
+        for idx, item in enumerate(g1_news_jp[:3], 1):
+            img_tag = f'<img src="{item["image"]}" class="news-img" alt="Foto do Brasil">' if item.get('image') else ''
+            br_news_html += f"""
     <div class="news-item">
-      <img src="{item['image']}" class="news-img" alt="Foto do Brasil">
+      {img_tag}
       <div class="news-title">{idx}. {item['title']}</div>
       <div class="news-body">{item['description']}</div>
     </div>
     """
 
-# AJUSTE 2: Layout em Coluna Única, Fonte Extra Grande e Alto Contraste para Glaucoma
-html_content = f"""<!DOCTYPE html>
+    # Seção de Vocabulário: 100% DINÂMICA (vazia se não houver notícias válidas do dia)
+    vocab_section_jp = ""
+    vocab_section_pt = ""
+    if nhk_news:
+        vocab_section_jp = """
+    <section>
+      <div class="section-title" style="background-color: #2E7D32;">📖 言葉の解説</div>
+      <div style="font-size: 22px; color: #666; text-align: center; padding: 10px;">(本日の該当言葉はありません)</div>
+    </section>
+"""
+        vocab_section_pt = """
+    <section>
+      <div class="section-title" style="background-color: #2E7D32;">📖 Compreendendo Melhor as Palavras</div>
+      <div style="font-size: 20px; color: #666; text-align: center; padding: 10px;">(Sem termos destacados para a data de hoje)</div>
+    </section>
+"""
+
+    html_content = f"""<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -209,25 +260,7 @@ html_content = f"""<!DOCTYPE html>
       </div>
     </section>
 
-    <section>
-      <div class="section-title" style="background-color: #2E7D32;">📖 言葉の解説</div>
-      <div class="vocab-card">
-        <div class="vocab-term">1. キャンペーン (Kyampēn)</div>
-        <div class="vocab-meaning">【意味】目的を達成するために行う宣伝や活動。</div>
-      </div>
-      <div class="vocab-card">
-        <div class="vocab-term">2. パートナーシップ (Pātonāshippu)</div>
-        <div class="vocab-meaning">【意味】お互いに協力する関係や提携。</div>
-      </div>
-      <div class="vocab-card">
-        <div class="vocab-term">3. ユネスコ世界遺産 (Yunesuko Sekai Isan)</div>
-        <div class="vocab-meaning">【意味】人類の宝物として守る価値のある文化財や自然。</div>
-      </div>
-      <div class="vocab-card">
-        <div class="vocab-term">4. 巡回 (じゅんかい)</div>
-        <div class="vocab-meaning">【意味】各地を順番に訪れること。</div>
-      </div>
-    </section>
+    {vocab_section_jp}
 
     <footer class="closing-box">
       今日も 素敵な 一日でしたね。<br>
@@ -240,45 +273,34 @@ html_content = f"""<!DOCTYPE html>
 </html>
 """
 
-def translate_to_pt(text):
-    if not text:
-        return ""
-    try:
-        url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=pt&dt=t&q=" + urllib.parse.quote(text)
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read().decode('utf-8'))
-            translated = "".join([sentence[0] for sentence in data[0] if sentence[0]])
-            return html.escape(translated)
-    except Exception as e:
-        print(f"Erro na tradução: {e}")
-        return text
-
-# Montagem dos blocos de notícias em Português para o arquivo HTML de conferência
-jp_news_pt_html = ""
-for idx, item in enumerate(nhk_news[:4], 1):
-    title_pt = translate_to_pt(item['title'])
-    desc_pt = translate_to_pt(item['description'])
-    jp_news_pt_html += f"""
+    # Montagem dos blocos de notícias em Português para conferência
+    jp_news_pt_html = ""
+    if nhk_news:
+        for idx, item in enumerate(nhk_news[:4], 1):
+            title_pt = translate_to_pt(item['title'])
+            desc_pt = translate_to_pt(item['description'])
+            img_tag = f'<img src="{item["image"]}" class="news-img" alt="Notícia {idx}">' if item.get('image') else ''
+            jp_news_pt_html += f"""
     <div class="news-item">
-      <img src="{item['image']}" class="news-img" alt="Notícia {idx}">
+      {img_tag}
       <div class="news-title">{idx}. {title_pt}</div>
       <div class="news-body">{desc_pt}</div>
     </div>
     """
 
-# Montagem dos blocos de notícias do Brasil em Português dinâmicas do G1
-br_news_pt_html = ""
-for idx, item in enumerate(g1_news_jp[:3], 1):
-    br_news_pt_html += f"""
+    br_news_pt_html = ""
+    if g1_news_jp:
+        for idx, item in enumerate(g1_news_jp[:3], 1):
+            img_tag = f'<img src="{item["image"]}" class="news-img" alt="Brasil {idx}">' if item.get('image') else ''
+            br_news_pt_html += f"""
     <div class="news-item">
-      <img src="{item['image']}" class="news-img" alt="Brasil {idx}">
+      {img_tag}
       <div class="news-title">{idx}. {item['title_pt']}</div>
       <div class="news-body">{item['description_pt']}</div>
     </div>
     """
 
-pt_html_content = f"""<!DOCTYPE html>
+    pt_html_content = f"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -348,25 +370,7 @@ pt_html_content = f"""<!DOCTYPE html>
       </div>
     </section>
 
-    <section>
-      <div class="section-title" style="background-color: #2E7D32;">📖 Compreendendo Melhor as Palavras</div>
-      <div class="vocab-card">
-        <div class="vocab-term">1. Campanha (Kyampēn)</div>
-        <div class="vocab-meaning">【Significado】Atividade de divulgação ou promoção realizada para atingir um objetivo.</div>
-      </div>
-      <div class="vocab-card">
-        <div class="vocab-term">2. Parceria (Pātonāshippu)</div>
-        <div class="vocab-meaning">【Significado】Relação de cooperação mútua ou aliança.</div>
-      </div>
-      <div class="vocab-card">
-        <div class="vocab-term">3. Patrimônio Mundial da UNESCO (Yunesuko Sekai Isan)</div>
-        <div class="vocab-meaning">【Significado】Bens culturais ou naturais protegidos como tesouros da humanidade.</div>
-      </div>
-      <div class="vocab-card">
-        <div class="vocab-term">4. Circulação / Turnê (Junkai)</div>
-        <div class="vocab-meaning">【Significado】Ato de percorrer vários locais em sequência.</div>
-      </div>
-    </section>
+    {vocab_section_pt}
 
     <footer class="closing-box">
       Hoje também foi um dia maravilhoso.<br>
@@ -379,23 +383,23 @@ pt_html_content = f"""<!DOCTYPE html>
 </html>
 """
 
-# Salvar o arquivo de tradução em Português no formato HTML (ex: edicoes/2026-08-11_PT.html)
-pt_html_filename = f"edicoes/{now_br.strftime('%Y-%m-%d')}_PT.html"
-with open(pt_html_filename, "w", encoding="utf-8") as f:
-    f.write(pt_html_content)
+    date_key = target_dt.strftime('%Y-%m-%d')
+    pt_html_filename = f"edicoes/{date_key}_PT.html"
+    date_html_filename = f"edicoes/{date_key}_JP.html"
+    latest_html_filename = "edicoes/index.html"
 
-# Salvar o arquivo HTML específico em Japonês com sufixo _JP.html (ex: edicoes/2026-08-11_JP.html)
-date_html_filename = f"edicoes/{now_br.strftime('%Y-%m-%d')}_JP.html"
-latest_html_filename = "edicoes/index.html"
+    with open(pt_html_filename, "w", encoding="utf-8") as f:
+        f.write(pt_html_content)
 
-with open(date_html_filename, "w", encoding="utf-8") as f:
-    f.write(html_content)
+    with open(date_html_filename, "w", encoding="utf-8") as f:
+        f.write(html_content)
 
-with open(latest_html_filename, "w", encoding="utf-8") as f:
-    f.write(html_content)
+    with open(latest_html_filename, "w", encoding="utf-8") as f:
+        f.write(html_content)
 
-print(f"Edição em Japonês salva em: {date_html_filename}")
-print(f"Tradução em Português salva em: {pt_html_filename}")
+    print(f"Edição em Japonês salva em: {date_html_filename}")
+    print(f"Tradução em Português salva em: {pt_html_filename}")
+    return date_html_filename, pt_html_filename
 
-
-
+if __name__ == "__main__":
+    generate_edition()
