@@ -21,9 +21,8 @@ def get_today_date():
 def is_valid_date(pubdate_str, target_dt, is_japan=False, max_days_old=7):
     """
     Valida a pubDate fornecida pelo RSS.
-    Para notícias do Japão (NHK), aceita matérias recentes publicadas no feed público (max_days_old=7) no fuso JST (+9h),
-    evitando seções em branco quando o servidor da NHK não publica notícias no próprio dia.
-    Para o Brasil, prioriza as notícias publicadas no próprio dia / últimas 48h.
+    Para notícias do Japão (NHK), aceita matérias recentes publicadas no feed público (max_days_old=7) no fuso JST (+9h).
+    Para o Brasil (G1), aceita matérias de hoje / últimas 48h com tolerância para diferença de fuso UTC (-0.5 <= diff_days <= 3.0).
     NÃO utiliza notícias antigas hardcoded.
     """
     if not pubdate_str:
@@ -38,10 +37,10 @@ def is_valid_date(pubdate_str, target_dt, is_japan=False, max_days_old=7):
         
         if is_japan:
             # Aceitar notícias recentes da NHK (até 7 dias)
-            return (0 <= diff_days <= max_days_old)
+            return (-0.5 <= diff_days <= max_days_old)
         else:
-            # Notícias do Brasil: mesmo dia calendário ou últimas 48h
-            return (0 <= diff_days <= 3.0)
+            # Notícias do Brasil: mesmo dia calendário ou últimas 48h com tolerância a fuso UTC
+            return (-0.5 <= diff_days <= 3.0)
     except Exception:
         today_day_str = target_dt.strftime("%d %b %Y")
         today_iso_str = target_dt.strftime("%Y-%m-%d")
