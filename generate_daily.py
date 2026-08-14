@@ -57,14 +57,26 @@ def contains_violent_content(title, description, is_japan=False):
             return True
     return False
 
+import re
+
+def clean_html_text(raw_html):
+    """
+    Remove tags HTML brutas (ex: <img src=...>, <br />, <a>) do texto da descrição
+    para evitar vazamento de código de imagem no resumo.
+    """
+    if not raw_html:
+        return ""
+    clean = re.sub(r'<[^>]+>', '', raw_html)
+    return html.unescape(clean).strip()
+
 def summarize_text(text, max_sentences=2, max_length=150):
     """
-    Resume e sintetiza o texto em no máximo 2 a 3 frases curtas e corta se exceder max_length.
+    Remove tags HTML, resume e sintetiza o texto em no máximo 2 a 3 frases curtas.
     """
     if not text:
         return ""
-    # Truncar por pontuação
-    clean_text = text.replace('\n', ' ').strip()
+    # Remover tags HTML brutas antes de resumir
+    clean_text = clean_html_text(text).replace('\n', ' ').strip()
     
     # Se for texto em japonês (delimitado por 。)
     if '。' in clean_text:
