@@ -264,10 +264,19 @@ def summarize_text(text, max_sentences=2, max_length=150):
         summarized = summarized[:max_length].rstrip() + "..."
     return summarized
 
+def clean_news_title(title):
+    """
+    Remove sufixos de fontes dos agregadores de notícias (ex: - NHK, - Yahoo!ニュース).
+    """
+    if not title:
+        return ""
+    clean = re.sub(r'\s*-\s*(NHK|nhk\.or\.jp|web\.nhk|NHKニュース|Yahoo!ニュース|産経ニュース|オリコンニュース|シネマトゥデイ|テレ朝NEWS|g1|Globo).*$', '', title, flags=re.IGNORECASE)
+    return clean.strip()
+
 def fetch_rss(url, target_dt, max_items=4, is_japan=False):
     """
     Busca notícias do RSS aplicando:
-    1. FILTRO DE DATA (Mesmo dia / recentes no fuso correspondente)
+    1. FILTRO DE DATA (Mesmo dia / recentes no fuso correspondente, considerando as 12h de avanço do Japão)
     2. FILTRO DE CONTEÚDO VIOLENTO/POLICIAL
     3. RESUMO E SINTETIZAÇÃO AUTOMÁTICA
     4. EXTRAÇÃO INTELIGENTE DE IMAGENS COM FALLBACK CONTEXTUAL NÍTIDO
@@ -295,6 +304,9 @@ def fetch_rss(url, target_dt, max_items=4, is_japan=False):
                     if contains_violent_content(raw_title, raw_desc, is_japan=is_japan):
                         continue
 
+                    # Limpar título de sufixos de feed
+                    clean_t = clean_news_title(raw_title) if is_japan else raw_title
+
                     # 3. EXTRAÇÃO INTELIGENTE DE IMAGENS
                     image_url = ""
                     media = item.find('{http://search.yahoo.com/mrss/}content')
@@ -315,7 +327,7 @@ def fetch_rss(url, target_dt, max_items=4, is_japan=False):
                         image_url = fallback_list[item_index % len(fallback_list)]
 
                     # 4. RESUMO E SINTETIZAÇÃO
-                    title = html.escape(raw_title.strip())
+                    title = html.escape(clean_t.strip())
                     link = html.escape(raw_link.strip())
                     short_desc = summarize_text(raw_desc, max_sentences=2, max_length=160)
                     description = html.escape(short_desc)
@@ -460,7 +472,24 @@ def generate_edition(target_dt=None):
         period = "Noite"
 
     # Buscar Notícias VÁLIDAS, FILTRADAS e RESUMIDAS
-    nhk_news = fetch_rss("https://www3.nhk.or.jp/rss/news/cat0.xml", target_dt, max_items=4, is_japan=True)
+    # Fontes do Japão (NHK em tempo real via feed oficial e complementos com fuso JST +12h)
+    japan_feed_urls = [
+        "https://news.google.com/rss/search?q=site:nhk.or.jp+when:48h&hl=ja&gl=JP&ceid=JP:ja",
+        "https://news.google.com/rss/search?q=NHK+when:48h&hl=ja&gl=JP&ceid=JP:ja",
+        "https://news.yahoo.co.jp/rss/topics/science.xml",
+        "https://news.yahoo.co.jp/rss/topics/domestic.xml",
+        "https://www3.nhk.or.jp/rss/news/cat0.xml"
+    ]
+    nhk_news = []
+    for feed_url in japan_feed_urls:
+        needed = 4 - len(nhk_news)
+        if needed <= 0:
+            break
+        items = fetch_rss(feed_url, target_dt, max_items=needed, is_japan=True)
+        for it in items:
+            if not any(x['title'] == it['title'] for x in nhk_news):
+                nhk_news.append(it)
+
     g1_news = fetch_rss("https://g1.globo.com/dynamo/rss2.xml", target_dt, max_items=3, is_japan=False)
 
     g1_news_jp = []
