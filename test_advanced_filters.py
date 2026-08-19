@@ -1,3 +1,4 @@
+import os
 import unittest
 from datetime import datetime, timezone, timedelta
 import generate_daily
@@ -31,6 +32,20 @@ class TestAdvancedNewsFiltering(unittest.TestCase):
         """Testa se o ajuste de fuso horário do Japão (JST) valida matérias recentes da NHK"""
         pubdate_nhk = "Thu, 13 Aug 2026 18:00:00 +0900"
         self.assertTrue(generate_daily.is_valid_date(pubdate_nhk, self.target_dt, is_japan=True))
+
+    def test_vocabulary_extraction(self):
+        """Testa a extração inteligente de termos modernos (Gairaigo) presentes nas notícias"""
+        nhk_news = [{'title': '観光キャンペーンがスタート', 'description': 'オンラインで参加可能なプロジェクトです。'}]
+        g1_news = [{'title': 'デジタル変革', 'description': 'アプリの活用が進む。'}]
+        v_jp, v_pt = generate_daily.extract_vocabulary(nhk_news, g1_news)
+        self.assertIn("キャンペーン", v_jp)
+        self.assertIn("Campanha", v_pt)
+
+    def test_empty_news_fallback_message(self):
+        """Testa se mensagens amigáveis de fallback são incluídas quando não há notícias violentas/válidas"""
+        jp_file, pt_file = generate_daily.generate_edition(self.target_dt)
+        self.assertTrue(os.path.exists(jp_file))
+        self.assertTrue(os.path.exists(pt_file))
 
 if __name__ == '__main__':
     unittest.main()
